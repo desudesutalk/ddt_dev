@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         8ch.dehttps
 // @namespace    http://some-site/
-// @version      0.1
+// @version      0.2
 // @description  change img url from "https" to "http"
 // @match        http://8ch.net/*
 // @copyright    2015+, boku
@@ -14,8 +14,16 @@ var Zepto=function(){function L(t){return null==t?String(t):j[S.call(t)]||"objec
 var $ = Zepto;
 
 function imgInserted(event){
-    $(event.target).closest('a').attr('href', $(event.target).closest('a').attr('href').replace(/^https\:\/\//, "http://"));
-    $(event.target).attr('src', $(event.target).attr('src').replace(/^https\:\/\//, "http://"));    
+    var t = $(event.target);
+    
+    if(t.hasClass('post-image')){
+        t.closest('a').attr('href', t.closest('a').attr('href').replace(/https\:\/\//g, "http://"));
+        t.attr('src', t.attr('src').replace(/https\:\/\//g, "http://"));
+    }else{
+        t.find('a').each(function(id, el){
+            $(this).attr('href', $(this).attr('href').replace(/https\:\/\//g, "http://"));
+        });
+    }
 }
 
 var insertAnimation = ' hidbordImgInserted{from{clip:rect(1px,auto,auto,auto);}to{clip:rect(0px,auto,auto,auto);}}',
@@ -23,6 +31,7 @@ var insertAnimation = ' hidbordImgInserted{from{clip:rect(1px,auto,auto,auto);}t
 
 $('<style type="text/css">@keyframes ' + insertAnimation + '@-moz-keyframes ' + insertAnimation + '@-webkit-keyframes ' +
   insertAnimation + '@-ms-keyframes ' + insertAnimation + '@-o-keyframes ' + insertAnimation +
-  '.post-image' + animationTrigger + '</style>').appendTo('head');
+  ' .post-image, div#alert_message' + animationTrigger + 
+  '</style>').appendTo('head');
 
 $(document).bind('animationstart', imgInserted).bind('MSAnimationStart', imgInserted).bind('webkitAnimationStart', imgInserted);
